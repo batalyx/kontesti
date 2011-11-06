@@ -27,8 +27,13 @@
 ;; $Term::ANSIColor::AUTORESET = 1;
 
 ;; my $logfile = $ARGV[$#ARGV];
+(def logfile) ;; alustus mainissa
+
 ;; my ($opts) = getopt();
+(def opts) ;; alustus mainissa
+
 ;; my $contest = lc($opts->{c});
+(def contest) ;; alustus ja testailut mainissa
 ;; if ($contest eq "joulu") {$contest = "sainio";}
 
 ;; if (!$logfile or $contest !~ /(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cup)/) {
@@ -39,25 +44,24 @@
 ;;   exit(1);
 ;; }
 
-;; my ($pos) = {
-;;   clock => [ 8, -12 ],
-;;   call => [ 14, -12 ],
-;;   msg => [ 62, -12 ],
-;;   outmsg => [ 38, -12 ],
-;;   band => [ 1, -12 ],
-;;   mode => [ 3, -12 ],
-;;   rst_s => [ 32, -12 ],
-;;   rst_g => [ 56, -12 ],
-;;   cwlog => [ 0, 1 ],
-;;   last_qsos => [ 0, 6 ],
-;;   status => [ 1, -2 ],
-;;   multi => [ 1, -10 ],
-;;   workingmode => [ 65, -2 ],
-;;   score => [ 55, 1 ],
-;;   keyer => [ 9, -2 ],
-;;   helps => [ 1, -6 ],
-;;   lastout => [ 1, 1 ]
-;; };
+(def pos {
+  :clock       [ 8, -12 ],
+  :call        [ 14, -12 ],
+  :msg         [ 62, -12 ],
+  :outmsg      [ 38, -12 ],
+  :band        [ 1, -12 ],
+  :mode        [ 3, -12 ],
+  :rst_s       [ 32, -12 ],
+  :rst_g       [ 56, -12 ],
+  :cwlog       [ 0, 1 ],
+  :last_qsos   [ 0, 6 ],
+  :status      [ 1, -2 ],
+  :multi       [ 1, -10 ],
+  :workingmode [ 65, -2 ],
+  :score       [ 55, 1 ],
+  :keyer       [ 9, -2 ],
+  :helps       [ 1, -6 ],
+  :lastout     [ 1, 1 ] })
 
 ;; my ($item) = {
 ;;   call => '',
@@ -845,22 +849,54 @@
 ;; # ja nälkävuoden mittainen main()
 
 ;; sub main {
+(defn main [args]
+
+;; my $logfile = $ARGV[$#ARGV];
+  (def logfile (last argv))
+;; my ($opts) = getopt();
+  (def opts (getopt))
+;; my $contest = lc($opts->{c});
+  (def contest (lc (opts :c)))
+;; if ($contest eq "joulu") {$contest = "sainio";}
+  (when (= contest "joulu") (def contest "sainio"))
+;; if (!$logfile or $contest !~ /(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cup)/) {
+;;   print "Käyttö: $0 -c kilpailunimi lokitiedosto\n";
+;;   print "\tkilpailunimet: perus-p, perus-k, perus-s, perus-y, sainio, syys,\n";
+;;   print "\t               joulu, kalakukko, nrau, 6cup\n"; 
+;;   print "\tPeruskisoissa luokkakirjain p=perus, k=kerho, s=second-op y=yleis\n";
+;;   exit(1);
+;; }
+  (when-not (and logfile
+                 (not (re-find #"(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cup)" contest)))
+    (println "Käyttö: $0 -c kilpailunimi lokitiedosto")
+    (println "\tkilpailunimet: perus-[pksy], sainio, syys, joulu, kalakukko, 6cup, nrau")
+    (println "\tPeruskisoissa luokkakirjain p=perus, k=kerho, s=second-op, y=yleis")
+    (System/exit 1))
+
 ;;   my $keybuf;
 ;;   my @termsize;
 ;;   my @oldsize;
 
 ;;   $main::term = Term::Cap::Tgetent Term::Cap { TERM => undef, OSPEED => 9600 };
 ;;   read_config();
+  (def conf (read-config))
 ;;   if ($conf->{mycall} eq "NOCALL") {
 ;;     print "\nLUE se dokumentaatio ja EDITOI konfiguraatio kuntoon ensin.\n\n";
 ;;     exit(42);
 ;;   }
+  (when (= (conf :mycall) "NOCALL")
+    (println "\nLUE se dokumentaatio ja EDITOI konfiguraatio kuntoon ensin.\n")
+    (System/exit 42))
 ;;   if ($contest =~ /(sainio|6cup)/) {
 ;;     read_dom();
 ;;   }
 ;;   if ($conf->{province} and $contest =~ /kalakukko/) {
 ;;     $item->{outmsg} .= $conf->{province};
 ;;   }
+  (when (re-find #"(sainio|6cup)" contest)
+    (read-dom))
+  (when (and (conf :province) (= contest "kalakukko"))
+    (set item (assoc item :outmsg (str (item :outmsg) (conf :province)))))
 
 ;;   $conf->{startserial} =~ s/^0*//;
 ;;   if ($contest eq "perus-k") {$conf->{startserial} = 101;}
@@ -868,6 +904,13 @@
 ;;   if ($contest eq "nrau") {$conf->{startserial} = 1;}
 ;;   if ($contest eq "perus-y") {$conf->{startserial} = 801;}
 ;;   if ($contest eq "perus-y") {$item->{workingmode} = "S&P";}
+  (case
+    (= contest "perus-k") (def conf (assoc conf :startserial 101))
+    (= contest "perus-s") (def conf (assoc conf :startserial 201))
+    (= contest    "nrau") (def conf (assoc conf :startserial   1))
+    (= contest "perus-y") (do
+                            (def conf (assoc conf :startserial 801))
+                            (def item (assoc item :workingmode "S&P"))))
 
 ;;   $main::term->Tputs('cl',1,$stdout);
 ;;   foreach my $i (grep(/^_/, keys %$main::term)) {
