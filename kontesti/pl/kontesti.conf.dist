@@ -1,0 +1,47 @@
+# kontesti.pl:n konfiguraatio
+
+# oma kutsu
+mycall=NOCALL
+
+# oma kuntanumero
+ohc=204
+
+# oma maakuntatunnus (NRAU-kilpa jne)
+province=UU
+
+# kalakukossa, syysottelussa ja sainiossa sarjanumeron aloitusnumero
+startserial=998
+
+# cwdaemonin tiedot
+cwdaemon_host=localhost
+cwdaemon_port=6789
+
+# lähtevissä viesteissä lyhennettävät numerot (0 -> T, 1 -> A ja 9 -> N)
+shortnums=09
+
+# pilkulla erotettu lista parametreista, jotka annetaan käynnistyksessä 
+# cwdaemonille. \e = esc
+# näillä parametreilla PC:n kaiutin on hiljaa ja nopeus on oletus + 1 pykälä
+# alussa kannattaa olla \e0, joka resetoi daemonin asetukset.
+cwdaemon_init=\e0,\e30,+
+
+# meta-näppäin, jolla aloitetaan komennot. \e = esc
+metakey=\e
+
+#  Meta-näppäimen ja numeron kanssa annettavat makrot
+#
+#  käytettäviä koodeja:
+#  % = oma kutsu
+#  @ = vasta-aseman kutsu
+#  + = nopeuta cw:tä
+#  - = hidasta cw:tä
+
+meta-1=TEST DE % TEST
+meta-2=@ DE %
+meta-3=DE
+meta-4=TU 73
+meta-5=SANA?
+meta-6=%
+meta-7=@ QSO B4 GL
+meta-8=AGN
+meta-9=QRZ?
