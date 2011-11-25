@@ -76,6 +76,19 @@
 ;;   keyer => '',
 ;;   lastout => ''
 ;; };
+(defn make-item []
+	{ :call ""
+	, :msg ""
+	, :outmsg "    "
+	, :band "80"
+	, :mode "cw"
+	, :rst_s "59"
+	, :rst_g "59"
+	, :status ""
+	, :workingmode "CQ"
+	, :keyer ""
+	, :lastout ""
+	})
 
 ;; my ($wordlen) = {
 ;;   'perus-p' => 5,
@@ -156,10 +169,15 @@
 ;; my $editmode = 0;
 ;; my $editqso = 0;
 ;; my $editqso_utc;
+
+
 ;; #-----------------------------------------------------------------------------
 ;; # komentoriviparametrit hashiin
 
 ;; sub getopt {
+(defn getopt
+  "komentoriviparametrit hashiin"
+  []
 ;;   my $i = 0;
 ;;   my ($ret) = {};
 ;;   while ($i < $#ARGV+1) {
@@ -174,6 +192,7 @@
 ;;   }
 ;;   return $ret;
 ;; }
+  )
 
 ;; #-----------------------------------------------------------------------------
 ;; # konffifileen luku
@@ -849,7 +868,7 @@
 ;; # ja nälkävuoden mittainen main()
 
 ;; sub main {
-(defn main [args]
+(defn main [argv]
 
 ;; my $logfile = $ARGV[$#ARGV];
   (def logfile (last argv))
@@ -1429,7 +1448,8 @@
 ;;   }
 ;;   Term::ReadKey::ReadMode(0);
 ;;   return 0;
-;; }
+  ;; }
+  )
 ;; #-----------------------------------------------------------------------------
 ;; # no tehdään se!
 ;; exit main();
