@@ -74,6 +74,14 @@ urlcolor={linkcolor}%
 \maketitle
 \tableofcontents
 
+% @@d Italic "@@'whatever@@'"
+% @@{{ @@1
+
+% @@<Italic "@@'fragment title@@'"@@>
+%               break;
+
+
+
 \section{Tulos ulos}
 @o kontesti-nuweb.pl
 @{
@@ -82,7 +90,10 @@ urlcolor={linkcolor}%
 @< data @>
 @< funktiot @>
 @< main @>
-@< Ajokomento @>
+#-----------------------------------------------------------------------------
+# no tehd‰‰n se!
+
+exit main();
 @}
 
 @D data
@@ -108,11 +119,39 @@ urlcolor={linkcolor}%
 @< restfnct @>
 @|@}
 
+aaa
+
+ccc
+
+
+@d if-contest @'ehto@'
+@{if ($contest @1) {
+  
+}
+@}
+
+@<foobar@>
+
+
+@d foobar  @{@%
+    if ($contest =~ /perus/) {
+      printf("%23s",sprintf("%d",$points));
+    }
+    if ($contest =~ /(kalakukko|syys|sainio)/) {
+      printf("%23s",sprintf("%d \xD7 40 + %d = %d",
+         $multipliers, $points, $multipliers * 40 + $points));
+    }
+@| kissa @}
+
+
+
+
 
 \section{Sorsa}
 @d Alukkeet
 @{ @% tuo  at-prossu meinaa kommenttia
 #!/usr/bin/perl
+@<if-contest @'=~ /perus/@'@>
 
 # $Id: kontesti.pl,v 0.40 2007/11/04 12:40:27 goblet Exp $
 # $Revision: 0.40 $
@@ -1536,11 +1575,5 @@ sub main {
 }
 @|@}
 
-@d Ajokomento @{@%
-#-----------------------------------------------------------------------------
-# no tehd‰‰n se!
-
-exit main();
-@|@}
 
 \end{document}
