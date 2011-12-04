@@ -1,4 +1,4 @@
-% -*- encoding: latin-1; mode: nuweb-mode; -*-
+% -*- encoding: iso-latin-9; mode: nuweb-mode; -*-
 
 % nuweb -l kontesti.w
 % latex kontesti.tex
@@ -9,13 +9,13 @@
 %\newif\ifshowcode
 %\showcodetrue
 \usepackage[T1]{fontenc}
-\usepackage[latin1]{inputenc}
+\usepackage[latin9]{inputenc}
 \usepackage[finnish]{babel}
 \usepackage{latexsym}
 %\usepackage{html}
 \usepackage{listings}
 \lstset{%numbers=left,numberstyle=\tiny,
-extendedchars,inputencoding=latin1,
+extendedchars,inputencoding=latin9,
 %showspaces=true,
 tabsize=2,
 showtabs=true,
