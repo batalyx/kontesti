@@ -115,8 +115,18 @@ exit main();
 @< ruudun p\"aivitys @>
 @< cw ilmoille @>
 @< cw numeroiden lyhennys @>
-
-@< restfnct @>
+@< duplikaattivaroitus @>
+@< pisteiden lasku ja kertoimien tarkistus @>
+@< kysy varmistus lopettamiselle @>
+@< kysy varmistus qso:n poistolle @>
+@< statusrivin tyhjennys @>
+@< makronappuloiden helpit @>
+@< qso:n tallennus tiedostoon @>
+@< qso:n poisto @>
+@< qso:n tietojen p\"aivitys @>
+@< ruudut uusiksi @>
+@< viimeiset qso:t listaan @>
+@< luetaan qso:t tiedostosta @>
 @|@}
 
 aaa
@@ -124,34 +134,34 @@ aaa
 ccc
 
 
-@d if-contest @'ehto@'
-@{if ($contest @1) {
-  
-}
-@}
 
-@<foobar@>
+Parametrien käyttöharjoitus, eli ensin parametrillinen määritelmä:
 
+@d kontesteille @'ehto@' @'lauseet@'
+@{if ($contest =~ /@1/) {@2}@}
 
-@d foobar  @{@%
-    if ($contest =~ /perus/) {
-      printf("%23s",sprintf("%d",$points));
-    }
-    if ($contest =~ /(kalakukko|syys|sainio)/) {
-      printf("%23s",sprintf("%d \xD7 40 + %d = %d",
-         $multipliers, $points, $multipliers * 40 + $points));
-    }
-@| kissa @}
+@d tai kontesteille @'ehto@' @'lauseet@'
+@{ elseif ($contest =~ /@1/) {
+  @2
+}@}
 
 
+Sitten osa sisällöstä (lauseet) omassa määritelmässä.
 
+@d if-contest koelauseet @{@%
+printf("%23s",sprintf("%d \xD7 40 + %d = %d",
+    $multipliers, $points, $multipliers * 40 + $points));
+@|@}
+
+Ja käyttö löytyy tuosta alta heti @< Alukkeet @> alusta,
+eli käytön on oltava toisen määritelmän sisällä.
 
 
 \section{Sorsa}
 @d Alukkeet
 @{ @% tuo  at-prossu meinaa kommenttia
 #!/usr/bin/perl
-@<if-contest @'=~ /perus/@'@>
+@<kontesteille @'(perus-[sk]|sainio)@' @< if-contest koelauseet @> @>
 
 # $Id: kontesti.pl,v 0.40 2007/11/04 12:40:27 goblet Exp $
 # $Revision: 0.40 $
@@ -693,7 +703,7 @@ sub cw_shorten {
 
 
 @|@}
-@D restfnct @{@%
+@d duplikaattivaroitus @{@%
 #-----------------------------------------------------------------------------
 # varoita duplikaatista
 
@@ -703,6 +713,9 @@ sub alert_dupe {
   $item->{status} .= color 'reset';
   upd_scr("status");
 }
+@|@}
+
+@D pisteiden lasku ja kertoimien tarkistus @{@%
 #-----------------------------------------------------------------------------
 # pisteiden lasku ja kertoimien tarkistus ja mahdollinen lisäys listaan
    
@@ -764,7 +777,9 @@ sub points_and_multi {
   }
   upd_scr("multi");
 }     
+@|@}
 
+@d kysy varmistus lopettamiselle @{@%
 #-----------------------------------------------------------------------------
 # kysy varmistus lopettamiselle
 
@@ -793,7 +808,9 @@ sub ask_quit {
     return 1;
   }
 }
+@|@}
 
+@d kysy varmistus qso:n poistolle @{@%
 #-----------------------------------------------------------------------------
 # kysy varmistus viimeisen qso:n poistolle
 
@@ -824,14 +841,18 @@ sub ask_del_last {
     return 1;
   }
 }
+@|@}
 
+@d statusrivin tyhjennys @{@%
 #-----------------------------------------------------------------------------
 # statusrivin tyhjennys
 sub clear_status {
   $item->{status} = "";
   upd_scr("status");
 }
+@|@}
 
+@d makronappuloiden helpit @{@%
 #-----------------------------------------------------------------------------
 # makronappuloiden helpit
 
@@ -853,7 +874,9 @@ sub print_helps {
     }
   }
 }
+@|@}
 
+@D qso:n tallennus tiedostoon @{@%
 #-----------------------------------------------------------------------------
 # qso:n tallennus tiedostoon
 
@@ -878,7 +901,9 @@ sub save_qso {
   push @@last_qsos, $logrow;
   shift @@last_qsos;
 }
+@|@}
 
+@d qso:n poisto @{@%
 #-----------------------------------------------------------------------------
 # qso:n poisto id:llä
 
@@ -898,7 +923,9 @@ sub delete_qso {
   rename "$logfile.tmp", $logfile;
   $clock_stopped = 0;
 }
+@|@}
 
+@d qso:n tietojen p\"aivitys @{@%
 #-----------------------------------------------------------------------------
 # qso:n tietojen päivitys id:llä
     
@@ -918,7 +945,9 @@ sub update_qso {
   close FD2;
   rename "$logfile.tmp", $logfile;
 }
+@|@}
 
+@d ruudut uusiksi @{@%
 #-----------------------------------------------------------------------------
 # piirretään kaikki ruudun jutut uusiksi jne.
 
@@ -933,8 +962,9 @@ sub refresh_screen {
   print_helps();
   clock(1);
 }
+@|@}
 
-
+@d viimeiset qso:t listaan @{@%
 #-----------------------------------------------------------------------------
 # lasketaan viimeisten qsojen listaan mahtuva määrä
 
@@ -953,7 +983,9 @@ sub lastqso_listlen {
   $height = $maxrow - $row - 1;
   return $height;
 }
+@|@}
 
+@D luetaan qso:t tiedostosta @{@%
 #-----------------------------------------------------------------------------
 # luetaan tiedostosta viimeisimmät qso:t ja luodaan duplikaattilista
 
