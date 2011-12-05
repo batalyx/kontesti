@@ -15,6 +15,7 @@
 %\usepackage{html}
 \usepackage{listings}
 \lstset{%numbers=left,numberstyle=\tiny,
+language=Perl,
 extendedchars,inputencoding=latin9,
 %showspaces=true,
 tabsize=2,
@@ -53,6 +54,21 @@ urlcolor={linkcolor}%
 
 \usepackage[left=2cm,right=1cm,top=2.5cm,bottom=2.5cm,headsep=0.5cm,headheight=0.5cm]{geometry}
 
+\newcommand{\perl}[1]{\lstinline[language=Perl]{#1}}
+\newcommand{\code}[1]{\perl{#1}}
+\newcommand{\var}[1]{\perl{#1}}
+\newcommand{\fnct}[1]{\perl{#1}}
+\newcommand{\bash}[1]{\lstinline[language=bash]{#1}}
+\newcommand{\cmdline}[1]{\bash{#1}}
+\newcommand{\ospath}[1]{\bash{#1}}
+
+\usepackage{multind}
+\newcommand{\contest}[1]{\textit{#1}\index{testit}{#1}}
+\newcommand{\indexcontest}[1]{\index{testit}{#1}}
+\newcommand{\indexallcontests}{\index{testit}{perus-p}\index{testit}{perus-k}\index{testit}{perus-s}\index{testit}{perus-y}\index{testit}{sainio}\index{testit}{syys}\index{testit}{joulu}\index{testit}{kalakukko}\index{testit}{nrau}\index{testit}{6cup}}
+
+\makeindex{testit}
+
 %% \setlength{\oddsidemargin}{0in}
 %% \setlength{\evensidemargin}{0in}
 %% \setlength{\topmargin}{0in}
@@ -82,7 +98,18 @@ urlcolor={linkcolor}%
 
 
 
+
 \section{Tulos ulos}
+
+Kontesti on kirjoitettu kokonaisuudessaan
+yhteen\footnote{Cabrillo"-tiedostomuotoon Kontestin tiedot muuttava
+ohjelma on erillinen testilokiohjelmasta.} tiedostoon, jonka sisältö
+on seuraava: Alussa on ohjelmakuvausten ja lisenssin jälkeen lueteltu
+ulkoiset kirjastot, joita seuraa tietorakenteiden ja funktioiden
+määritelmät. Lopussa on pääohjelma ja viimeisenä sen
+käynnistys. Vaikka pääohjelman käynnistys on vasta lopussa, on
+alussakin ajettavaa koodia, joka lähinnä alustaa tietorakenteita.
+
 @o kontesti-nuweb.pl
 @{
 @< Alukkeet @>
@@ -96,11 +123,275 @@ urlcolor={linkcolor}%
 exit main();
 @}
 
+Ohjelma jakautuu käytännössä kolmeen osaan: tiedon varastointiin, tiedon näyttöön
+ja syöttöön, sekä kisojen erikoispiirteisiin. Helposti voitaisiin näiden olettaa
+olevan kuin kolmikerrosrakenteen kerrokset, mutta kerrosajattelun mukaista kerrosten
+välistä riippumattomuutta ei löydy. Kaikki osat käyttävät ristiin ohjelman
+globaaleja muuttujia, joten riippuvuuksia osien välillä on runsaasti.
+
+Tätä ei tule ottaa negatiivisena kommenttina. Ohjelma ei kenties vastaa viimeisintä
+käsitystä norsunluutornien mukaisesta täydellisestä ohjelmasta, mutta se on toimiva,
+tarpeeseen suoraviivaisesti kehitetty ohjelma. Kaikkien ohjelmien ei tarvitse olla
+yliabstrahoituja uudelleenkäyttöiloitteluja. Joskus ohjelma on vain tuttu, varma
+ja hyvä työkalu tarpeeseen.
+
+\subsection{Alukkeet, lisenssi ja kirjastot}
+
+Alussa on Unix"-skriptien mukaisesti kerrottu \emph{hash bang} "-notaatiolla
+tiedoston ajokomento, eli Perl-tulkki. Yleensähän se löytyy hakemistosta
+\ospath{/usr/bin}, mutta uudemmat Unix"-versiot osaavat sen etsiä muualtakin,
+jos komento muutetaan muotoon \bash{#!/usr/bin/env perl}.
+
+@d Alukkeet
+@{ @% tuo  at-prossu meinaa kommenttia
+#!/usr/bin/perl
+@<kontesteille @'(perus-[sk]|sainio)@' @< if-contest koelauseet @> @>
+@<tai kontesteille @'(kalakukko|6cup)@' @< if-contest koelauseet @> @>
+
+# $Id: kontesti.pl,v 0.40 2007/11/04 12:40:27 goblet Exp $
+# $Revision: 0.40 $
+
+##########################################################################
+# kontesti.pl                                                            #
+#                                                                        #
+# OH2MMY                                                                 #
+#                                                                        #
+# Toiminee useimmissa kotimaankisoissa. Joudut vain laskemaan pisteet    #
+# toistaiseksi itse.                                                     #
+#                                                                        #
+# Jos löydät vikoja, niin korjaa, tukea ei ole toistaiseksi saatavilla,  #
+# koska tämä on tehty vain itselle ja vain siksi kun kotimaankisoihin    #
+# ohjelmia saa vain microsoft-kakalle.                                   #
+#                                                                        #
+##########################################################################
+@|@}
+
+Alussa on myös mukana CVS- tai RCS"-versiohallinnan metatietoja, jotka
+Kontestin revision ja tämän viimeisimmän muokkauspäivän.
+
+Perl"-kirjastoista otetaan seuraavat mukaan:
+
+@d Uses @{@%
+use strict;
+use Socket;
+use Term::ReadKey;
+use Term::Cap;
+use Term::ANSIColor;
+$Term::ANSIColor::AUTORESET = 1;
+@|@}
+
+Kirjasto \emph{Term} sisältää (VT-100?) terminaalin ohjauskomennot (termcap).
+Kontesti onkin täysin merkkipohjainen ohjelma, joka itsessään sisältää
+pienen merkkipohjaisen ikkunoinnin, joskin ikkuna on käytännössä aina saman
+kokoinen, jakaantuen kooltaan samana pysyviin osioihin. Selkeä ja toimiva
+ratkaisu.
+
+Socket"-rajapinnan kautta käytetään mahdollista rigin avainnusta.
+
+
+
+\section{Tietorakenteet ja globaalit muuttujat}
+
+Seuraavaksi tiedostossa on esitelty tietorakenteet ja globaalit muuttujat:
+
 @D data
 @{@%
-@< tietueet @>
-@< globaalit muuttujat @>
+@< Komentoriviparametrit @>
+@< K\"aynnistysohjeet @>
+@< Tietueet @>
+@< Globaalit muuttujat @>
 @|@}
+
+Joukossa on myös hieman alustuskoodia, joka siten tulee ajettua heti näitä
+muuttujia alustettaessa. Valinta on suoraviivainen ja tehokas, mutta hajauttaa
+tietueiden alustusta liikaa, sillä myöhemmin main"-proseduurissa tullaan myös
+alustamaan tietorakenteita.
+
+\subsection{Komentoriviparametrit ja käynnistysohjeet}
+
+Ensin käsitellään komentoriviparametrit, eli otetaan talteen
+lokitiedoston nimi muuttujaan \var{logfile} ja optioista, jotka
+luetaan muuttjaan \var{opts} kisan nimi muuttujaan \var{contest}, joka
+lienee eniten viitattu muuttja koko ohjelmassa. Funktio \fnct{lc} vain
+vaihtaa parametrimerkkijononsa kirjaimet pieniksi.
+
+@d Komentoriviparametrit @{@%
+my $logfile = $ARGV[$#ARGV];
+my ($opts) = getopt();
+my $contest = lc($opts->{c});
+@|@}
+
+Seuraavaksi tarkastetaan, jos kisa on \contest{joulu}, se ajetaan kuin
+se olisi \contest{sainio}.
+
+@d Komentoriviparametrit @{@%
+if ($contest eq "joulu") {$contest = "sainio";}
+@| logfile opts contest @}
+
+Jos taas lokitiedoston nimeä tai kilpailua ei ole
+annettu, tulostetaan käyttöohjeet ja lopetetaan ohjelman suoritus:
+
+@d K\"aynnistysohjeet @{@%
+if (!$logfile or $contest !~ /(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cup)/) {
+  print "Käyttö: $0 -c kilpailunimi lokitiedosto\n";
+  print "\tkilpailunimet: perus-p, perus-k, perus-s, perus-y, sainio, syys,\n";
+  print "\t               joulu, kalakukko, nrau, 6cup\n"; 
+  print "\tPeruskisoissa luokkakirjain p=perus, k=kerho, s=second-op y=yleis\n";
+  exit(1);
+}
+@|@}
+\indexallcontests
+
+\subsection{Tietueet ja tietorakenteet}
+
+Seuraavaksi on määritelty tietueet ja tietorakenteet\footnote{Kyllä, nämäkin ovat globaaleja muuttujia, mutta esittelen ne erillään, koska ne ovat koosteisia tietotyyppejä, joita käytetään kasaamaan yhteenkuuluvia tietoja.}.  
+
+@D Tietueet
+@{@%
+@< Ikkunoiden paikat @> @% UI
+@< Lokikirjaus @>
+@< Sanapituudet @>
+@< Duplikaatti @>
+@< Taajuus metreiksi @>
+
+#klunssia
+
+@< Terminaalin\"app\"aimet @>
+@< Kertoimet @>
+@< Kenttien pituudet @> @% UI
+@}
+
+@D Ikkunoiden paikat @{@%
+my ($pos) = {
+  clock => [ 8, -12 ],
+  call => [ 14, -12 ],
+  msg => [ 62, -12 ],
+  outmsg => [ 38, -12 ],
+  band => [ 1, -12 ],
+  mode => [ 3, -12 ],
+  rst_s => [ 32, -12 ],
+  rst_g => [ 56, -12 ],
+  cwlog => [ 0, 1 ],
+  last_qsos => [ 0, 6 ],
+  status => [ 1, -2 ],
+  multi => [ 1, -10 ],
+  workingmode => [ 65, -2 ],
+  score => [ 55, 1 ],
+  keyer => [ 9, -2 ],
+  helps => [ 1, -6 ],
+  lastout => [ 1, 1 ]
+};
+@| pos @}
+
+@d Lokikirjaus @{@%
+my ($item) = {
+  call => '',
+  msg => '',
+  outmsg => '    ',
+  band => '80',
+  mode => 'CW ',
+  rst_s => '59',
+  rst_g => '59',
+  status => '',
+  workingmode => 'CQ',
+  keyer => '',
+  lastout => ''
+};
+@| item @}
+
+@d Sanapituudet @{@%
+my ($wordlen) = {
+  'perus-p' => 5,
+  'perus-k' => 5,
+  'perus-s' => 5,
+  'perus-y' => 5,
+  sainio  => 5,
+  syys    => 2,
+  kalakukko => 2,
+  '6cup'    => 2,
+  nrau    => 2
+};
+@| wordlen @}
+
+@d Duplikaatti @{@%
+my ($dupe) = {};
+@| dupe @}
+
+@d Taajuus metreiksi @{@%
+my ($bandswap) = {
+  '3,5' => 80,
+  7 => 40,
+  14 => 20,
+  21 => 15,
+  28 => 10,
+  10 => 28,
+  15 => 21,
+  20 => 14,
+  40 => 7,
+  80 => '3,5'
+};
+@| bandswap @}
+
+
+@d Terminaalin\"app\"aimet @{@%
+my ($termkeys) = {
+  _kP => "\e[5~",
+  _kN => "\e[6~",
+  _kh => "\e[H",
+  '_@@7' => "\e[F",
+  _ku => "\e[A",
+  _up => "\e[A",
+  _kd => "\e[B",
+  _do => "\e[B",
+  _kl => "\e[D",
+  _le => "\e[D",
+  _kr => "\e[C",
+  _kD => "\e[3~",
+  _kI => "\e[2~",
+  _nd => "\e[C"
+};
+@| termkeys @}
+
+@d Kertoimet @{@%
+my ($multi) = {};
+if ($contest eq "6cup") {$multi->{'40-OH6'} = 0;$multi->{'80-OH6'} = 0;}
+@| multi @}
+
+@d Kenttien pituudet
+@{@% UI
+my ($fieldlen) = {
+  call => 15,
+  msg => 9,
+  outmsg => 9,
+  keyer => 50
+};
+if ($contest =~ /(kalakukko|syys|6cup|nrau)/) {
+  $fieldlen->{msg} = 6;
+  $fieldlen->{outmsg} = 6;
+}
+@| fieldlen @}\indexcontest{kalakukko}\indexcontest{syys}\indexcontest{6cup}\indexcontest{nrau}
+
+@D Globaalit muuttujat
+@{my ($conf) = {};
+my ($countyname) = {};
+my $stopped = 0;
+my $stdout = *STDOUT;
+my $where = "call";
+my @@last_qsos = ();
+my @@cwmsgs = ('','','','');
+my $qso_num = 0;
+my $clock_stopped = 0;
+my $_right_ = ' ';
+my $position;
+my $multipliers = 0;
+my $points = 0;
+my $editor_row = "";
+my $backup_item;
+my $editmode = 0;
+my $editqso = 0;
+my $editqso_utc;
+@| conf countyname stopped stdout where last_qsos cwmsgs qso_num clock_stopped _right_ position multipliers points editor_row backup_item editmode editqso editqso_utc @}
+
 
 
 @D funktiot @{@%
@@ -141,9 +432,7 @@ Parametrien käyttöharjoitus, eli ensin parametrillinen määritelmä:
 @{if ($contest =~ /@1/) {@2}@}
 
 @d tai kontesteille @'ehto@' @'lauseet@'
-@{ elseif ($contest =~ /@1/) {
-  @2
-}@}
+@{elseif ($contest =~ /@1/) {@2}@}
 
 
 Sitten osa sisällöstä (lauseet) omassa määritelmässä.
@@ -158,169 +447,7 @@ eli käytön on oltava toisen määritelmän sisällä.
 
 
 \section{Sorsa}
-@d Alukkeet
-@{ @% tuo  at-prossu meinaa kommenttia
-#!/usr/bin/perl
-@<kontesteille @'(perus-[sk]|sainio)@' @< if-contest koelauseet @> @>
 
-# $Id: kontesti.pl,v 0.40 2007/11/04 12:40:27 goblet Exp $
-# $Revision: 0.40 $
-
-##########################################################################
-# kontesti.pl                                                            #
-#                                                                        #
-# OH2MMY                                                                 #
-#                                                                        #
-# Toiminee useimmissa kotimaankisoissa. Joudut vain laskemaan pisteet    #
-# toistaiseksi itse.                                                     #
-#                                                                        #
-# Jos löydät vikoja, niin korjaa, tukea ei ole toistaiseksi saatavilla,  #
-# koska tämä on tehty vain itselle ja vain siksi kun kotimaankisoihin    #
-# ohjelmia saa vain microsoft-kakalle.                                   #
-#                                                                        #
-##########################################################################
-@|@}
-
-@d Uses @{@%
-use strict;
-use Socket;
-use Term::ReadKey;
-use Term::Cap;
-use Term::ANSIColor;
-$Term::ANSIColor::AUTORESET = 1;
-@|@}
-
-@D tietueet
-@{@%
-my $logfile = $ARGV[$#ARGV];
-my ($opts) = getopt();
-my $contest = lc($opts->{c});
-if ($contest eq "joulu") {$contest = "sainio";}
-
-if (!$logfile or $contest !~ /(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cup)/) {
-  print "Käyttö: $0 -c kilpailunimi lokitiedosto\n";
-  print "\tkilpailunimet: perus-p, perus-k, perus-s, perus-y, sainio, syys,\n";
-  print "\t               joulu, kalakukko, nrau, 6cup\n"; 
-  print "\tPeruskisoissa luokkakirjain p=perus, k=kerho, s=second-op y=yleis\n";
-  exit(1);
-}
-
-my ($pos) = {
-  clock => [ 8, -12 ],
-  call => [ 14, -12 ],
-  msg => [ 62, -12 ],
-  outmsg => [ 38, -12 ],
-  band => [ 1, -12 ],
-  mode => [ 3, -12 ],
-  rst_s => [ 32, -12 ],
-  rst_g => [ 56, -12 ],
-  cwlog => [ 0, 1 ],
-  last_qsos => [ 0, 6 ],
-  status => [ 1, -2 ],
-  multi => [ 1, -10 ],
-  workingmode => [ 65, -2 ],
-  score => [ 55, 1 ],
-  keyer => [ 9, -2 ],
-  helps => [ 1, -6 ],
-  lastout => [ 1, 1 ]
-};
-
-my ($item) = {
-  call => '',
-  msg => '',
-  outmsg => '    ',
-  band => '80',
-  mode => 'CW ',
-  rst_s => '59',
-  rst_g => '59',
-  status => '',
-  workingmode => 'CQ',
-  keyer => '',
-  lastout => ''
-};
-
-my ($wordlen) = {
-  'perus-p' => 5,
-  'perus-k' => 5,
-  'perus-s' => 5,
-  'perus-y' => 5,
-  sainio  => 5,
-  syys    => 2,
-  kalakukko => 2,
-  '6cup'    => 2,
-  nrau    => 2
-};
-
-my ($dupe) = {};
-
-my ($bandswap) = {
-  '3,5' => 80,
-  7 => 40,
-  14 => 20,
-  21 => 15,
-  28 => 10,
-  10 => 28,
-  15 => 21,
-  20 => 14,
-  40 => 7,
-  80 => '3,5'
-};
-
-# klunssia
-
-my ($termkeys) = {
-  _kP => "\e[5~",
-  _kN => "\e[6~",
-  _kh => "\e[H",
-  '_@@7' => "\e[F",
-  _ku => "\e[A",
-  _up => "\e[A",
-  _kd => "\e[B",
-  _do => "\e[B",
-  _kl => "\e[D",
-  _le => "\e[D",
-  _kr => "\e[C",
-  _kD => "\e[3~",
-  _kI => "\e[2~",
-  _nd => "\e[C"
-};
-
-my ($multi) = {};
-if ($contest eq "6cup") {$multi->{'40-OH6'} = 0;$multi->{'80-OH6'} = 0;}
-
-my ($fieldlen) = {
-  call => 15,
-  msg => 9,
-  outmsg => 9,
-  keyer => 50
-};
-if ($contest =~ /(kalakukko|syys|6cup|nrau)/) {
-  $fieldlen->{msg} = 6;
-  $fieldlen->{outmsg} = 6;
-}
-@|@}
-
-@D globaalit muuttujat
-@{@%
-my ($conf) = {};
-my ($countyname) = {};
-my $stopped = 0;
-my $stdout = *STDOUT;
-my $where = "call";
-my @@last_qsos = ();
-my @@cwmsgs = ('','','','');
-my $qso_num = 0;
-my $clock_stopped = 0;
-my $_right_ = ' ';
-my $position;
-my $multipliers = 0;
-my $points = 0;
-my $editor_row = "";
-my $backup_item;
-my $editmode = 0;
-my $editqso = 0;
-my $editqso_utc;
-@|@}
 
 @d getopt @{@%
 #-----------------------------------------------------------------------------
@@ -341,7 +468,7 @@ sub getopt {
   }
   return $ret;
 }
-@|@}
+@| getopt @}
 
 @D konffifileen luku @{@%
 #-----------------------------------------------------------------------------
@@ -365,8 +492,8 @@ sub read_config {
     cw_out($i);
   }
 }
+@| read_config @}
 
-@|@}
 @d kerroin ja kuntalistan luku @{@%
 #-----------------------------------------------------------------------------
 # kerroin/kuntalistan luku 
@@ -381,7 +508,8 @@ sub read_dom {
     close DOM;
   }
 }
-@|@}
+@| read_dom @}
+
 @D helppi-ikkuna @{@%
 #-----------------------------------------------------------------------------
 # helppi-ikkuna
@@ -1607,5 +1735,6 @@ sub main {
 }
 @|@}
 
+\printindex{testit}{Testit (=kisat)}
 
 \end{document}
