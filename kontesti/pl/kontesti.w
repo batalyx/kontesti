@@ -78,25 +78,24 @@ urlcolor={linkcolor}%
 %% \setlength{\textwidth}{20cm}
 %% \setlength{\marginparwidth}{0.5in}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Perli käyttää ät-merkkiä, joten nuwebin komentomerkiksi §
+@r§
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \title{Kontesti \\ kotimaan hf-testien logiohjelma}
 \date{}
 \author{OH2MDY 
-\\ {\sl oh2mmy@@???}
+\\ {\sl oh2mmy@???}
 \\ nuweb-versio
-\\ {\sl oh6fjs@@sral.fi}}
+\\ {\sl oh6fjs@sral.fi}}
 
 \begin{document}
 
 \maketitle
 \tableofcontents
-
-% @@d Italic "@@'whatever@@'"
-% @@{{ @@1
-
-% @@<Italic "@@'fragment title@@'"@@>
-%               break;
-
-
 
 
 \section{Tulos ulos}
@@ -110,18 +109,18 @@ määritelmät. Lopussa on pääohjelma ja viimeisenä sen
 käynnistys. Vaikka pääohjelman käynnistys on vasta lopussa, on
 alussakin ajettavaa koodia, joka lähinnä alustaa tietorakenteita.
 
-@o kontesti-nuweb.pl
-@{
-@< Alukkeet @>
-@< Uses @>
-@< data @>
-@< funktiot @>
-@< main @>
+§o kontesti-nuweb.pl
+§{
+§< Alukkeet §>
+§< Uses §>
+§< data §>
+§< funktiot §>
+§< main §>
 #-----------------------------------------------------------------------------
 # no tehdään se!
 
 exit main();
-@}
+§}
 
 Ohjelma jakautuu käytännössä kolmeen osaan: tiedon varastointiin, tiedon näyttöön
 ja syöttöön, sekä kisojen erikoispiirteisiin. Helposti voitaisiin näiden olettaa
@@ -142,11 +141,11 @@ tiedoston ajokomento, eli Perl-tulkki. Yleensähän se löytyy hakemistosta
 \ospath{/usr/bin}, mutta uudemmat Unix"-versiot osaavat sen etsiä muualtakin,
 jos komento muutetaan muotoon \bash{#!/usr/bin/env perl}.
 
-@d Alukkeet
-@{ @% tuo  at-prossu meinaa kommenttia
+§d Alukkeet
+§{ §% tuo  at-prossu meinaa kommenttia
 #!/usr/bin/perl
-@<kontesteille @'(perus-[sk]|sainio)@' @< if-contest koelauseet @> @>
-@<tai kontesteille @'(kalakukko|6cup)@' @< if-contest koelauseet @> @>
+§<kontesteille §'(perus-[sk]|sainio)§' §< if-contest koelauseet §> §>
+§<tai kontesteille §'(kalakukko|6cup)§' §< if-contest koelauseet §> §>
 
 # $Id: kontesti.pl,v 0.40 2007/11/04 12:40:27 goblet Exp $
 # $Revision: 0.40 $
@@ -164,7 +163,7 @@ jos komento muutetaan muotoon \bash{#!/usr/bin/env perl}.
 # ohjelmia saa vain microsoft-kakalle.                                   #
 #                                                                        #
 ##########################################################################
-@|@}
+§|§}
 
 Pahoittelen, ettei \LaTeX in Listings"-paketti minun käsissäni taivu esittämään ylläolevaa siedettävästi.
 Alussa on myös mukana CVS- tai RCS"-versiohallinnan metatietoja, jotka
@@ -172,14 +171,14 @@ Kontestin revision ja tämän viimeisimmän muokkauspäivän.
 
 Perl"-kirjastoista otetaan seuraavat mukaan:
 
-@d Uses @{@%
+§d Uses §{§%
 use strict;
 use Socket;
 use Term::ReadKey;
 use Term::Cap;
 use Term::ANSIColor;
 $Term::ANSIColor::AUTORESET = 1;
-@|@}
+§|§}
 
 Kirjasto \emph{Term} sisältää (VT-100?) terminaalin ohjauskomennot (termcap).
 Kontesti onkin täysin merkkipohjainen ohjelma, joka itsessään sisältää
@@ -195,13 +194,13 @@ Socket"-rajapinnan kautta käytetään mahdollista rigin avainnusta.
 
 Seuraavaksi tiedostossa on esitelty tietorakenteet ja globaalit muuttujat:
 
-@D data
-@{@%
-@< Komentoriviparametrit @>
-@< K\"aynnistysohjeet @>
-@< Tietueet @>
-@< Globaalit muuttujat @>
-@|@}
+§D data
+§{§%
+§< Komentoriviparametrit §>
+§< K\"aynnistysohjeet §>
+§< Tietueet §>
+§< Globaalit muuttujat §>
+§|§}
 
 Joukossa on myös hieman alustuskoodia, joka siten tulee ajettua heti näitä
 muuttujia alustettaessa. Valinta on suoraviivainen ja tehokas, mutta hajauttaa
@@ -216,15 +215,15 @@ luetaan muuttjaan \var{opts} kisan nimi muuttujaan \var{contest}, joka
 lienee eniten viitattu muuttja koko ohjelmassa. Funktio \fnct{lc} vain
 vaihtaa parametrimerkkijononsa kirjaimet pieniksi.
 
-@d Komentoriviparametrit @{@%
+§d Komentoriviparametrit §{§%
 my $logfile = $ARGV[$#ARGV];
 my ($opts) = getopt();
 my $contest = lc($opts->{c});
-@|@}
+§|§}
 
 Komentorivioptioiden luku tapahtuu seuraavasti:
 
-@D getopt @{@%
+§D getopt §{§%
 #-----------------------------------------------------------------------------
 # komentoriviparametrit hashiin
 
@@ -243,21 +242,21 @@ sub getopt {
   }
   return $ret;
 }
-@| getopt @}
+§| getopt §}
 
 TODO: SELITÄ! ******************
 
 Seuraavaksi tarkastetaan, jos kisa on \contest{joulu}, se ajetaan kuin
 se olisi \contest{sainio}.
 
-@d Komentoriviparametrit @{@%
+§d Komentoriviparametrit §{§%
 if ($contest eq "joulu") {$contest = "sainio";}
-@| logfile opts contest @}
+§| logfile opts contest §}
 
 Jos taas lokitiedoston nimeä tai kilpailua ei ole
 annettu, tulostetaan käyttöohjeet ja lopetetaan ohjelman suoritus:
 
-@d K\"aynnistysohjeet @{@%
+§d K\"aynnistysohjeet §{§%
 if (!$logfile or $contest !~ /(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cup)/) {
   print "Käyttö: $0 -c kilpailunimi lokitiedosto\n";
   print "\tkilpailunimet: perus-p, perus-k, perus-s, perus-y, sainio, syys,\n";
@@ -265,7 +264,7 @@ if (!$logfile or $contest !~ /(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cu
   print "\tPeruskisoissa luokkakirjain p=perus, k=kerho, s=second-op y=yleis\n";
   exit(1);
 }
-@|@}
+§|§}
 \indexallcontests
 
 \subsection{Tietueet ja tietorakenteet}
@@ -274,31 +273,31 @@ Seuraavaksi on määritelty tietueet ja tietorakenteet\footnote{Kyllä, nämäkin ova
 
 Ensimmäisenä tietueissa on lueteltu sanasto, jossa ikkunoiden paikat on indeksoitu ikkunan nimen funktiona. Tämä, kuten muutkin tietueet, on esitelty tarkemmin omassa osuudessaan myöhemmin.
 
-@D Tietueet
-@{
-@< Ikkunoiden paikat @> @% UI
-@}
+§D Tietueet
+§{
+§< Ikkunoiden paikat §> §% UI
+§}
 
 Seuraavana tulee joukko tiedontallennuksen ja pistelaskun tietueita. Sananpituudet listaava ja taajuuden metreiksi muuttavat sanastot ovat hieno esimerkki siitä, miten moinen tulee tehdä. Sen sijaan, että rakennettaisiin käsittämätön \code{if-} tai \code{case}"-hässäkkä, tehdään selkeä sanasto, jossa avaimella löytyy oikea arvo. Taajuuden muuttamisen metreiksi voisi toki tehdä funktiona, mutta senkin erikoisuuksien vuoksi jouduttaisiin turvautumaan sekaviin ehtolauseisiin.
 
-@D Tietueet
-@{
-@< Lokikirjaus @>
-@< Sanapituudet @>
-@< Duplikaatti @>
-@< Taajuus metreiksi @>
-@}
+§D Tietueet
+§{
+§< Lokikirjaus §>
+§< Sanapituudet §>
+§< Duplikaatti §>
+§< Taajuus metreiksi §>
+§}
 
 Klunssista löytyvät sitten terminaalin komentonäppäimet, testien kertoimet sekä syöttökenttien pituudet, eli hieman hassusti taas käyttöliittymä- ja logiikkakoodia sekaisin.
 
-@D Tietueet
-@{
+§D Tietueet
+§{
 #klunssia
 
-@< Terminaalin\"app\"aimet @>
-@< Kertoimet @>
-@< Kenttien pituudet @> @% UI
-@}
+§< Terminaalin\"app\"aimet §>
+§< Kertoimet §>
+§< Kenttien pituudet §> §% UI
+§}
 
 
 
@@ -311,8 +310,8 @@ Klunssista löytyvät sitten terminaalin komentonäppäimet, testien kertoimet sekä 
 %% my $stopped = 0;
 %% my $stdout = *STDOUT;
 %% my $where = "call";
-%% my @@last_qsos = ();
-%% my @@cwmsgs = ('','','','');
+%% my @last_qsos = ();
+%% my @cwmsgs = ('','','','');
 %% my $qso_num = 0;
 %% my $clock_stopped = 0;
 %% my $_right_ = ' ';
@@ -327,12 +326,12 @@ Klunssista löytyvät sitten terminaalin komentonäppäimet, testien kertoimet sekä 
 
 Koska globaalit muuttujat eivät viittaa toisiinsa tai ole muuten esittelyjärjestyksestä riippuvia, ryhmittelin niitä hieman.
 
-@D Globaalit muuttujat @{
+§D Globaalit muuttujat §{
 my ($conf) = {};
 my ($countyname) = {};
 my $stdout = *STDOUT;
 my $where = "call";
-my @@last_qsos = ();
+my @last_qsos = ();
 my $qso_num = 0;
 my $clock_stopped = 0;
 my $_right_ = ' ';
@@ -345,36 +344,36 @@ my $editqso = 0;
 my $editqso_utc;
 my $stopped = 0;
 my $backup_item;
-my @@cwmsgs = ('','','','');
-@| conf countyname stopped stdout where last_qsos cwmsgs qso_num clock_stopped _right_ position multipliers points editor_row backup_item editmode editqso editqso_utc @}
+my @cwmsgs = ('','','','');
+§| conf countyname stopped stdout where @last_qsos @cwmsgs qso_num clock_stopped _right_ position multipliers points editor_row backup_item editmode editqso editqso_utc §}
 
 
 
-@D funktiot @{@%
-@< getopt @>
-@< konffifileen luku @>
-@< kerroin ja kuntalistan luku @>
-@< helppi-ikkuna @>
-@< grafiikkakehykset @>
-@< kursorin siirto @>
-@< editoitava rivi itemiin @>
-@< kellon p\"aivitt\"aj\"a @>
-@< ruudun p\"aivitys @>
-@< cw ilmoille @>
-@< cw numeroiden lyhennys @>
-@< duplikaattivaroitus @>
-@< pisteiden lasku ja kertoimien tarkistus @>
-@< kysy varmistus lopettamiselle @>
-@< kysy varmistus qso:n poistolle @>
-@< statusrivin tyhjennys @>
-@< makronappuloiden helpit @>
-@< qso:n tallennus tiedostoon @>
-@< qso:n poisto @>
-@< qso:n tietojen p\"aivitys @>
-@< ruudut uusiksi @>
-@< viimeiset qso:t listaan @>
-@< luetaan qso:t tiedostosta @>
-@|@}
+§D funktiot §{§%
+§< getopt §>
+§< konffifileen luku §>
+§< kerroin ja kuntalistan luku §>
+§< helppi-ikkuna §>
+§< grafiikkakehykset §>
+§< kursorin siirto §>
+§< editoitava rivi itemiin §>
+§< kellon p\"aivitt\"aj\"a §>
+§< ruudun p\"aivitys §>
+§< cw ilmoille §>
+§< cw numeroiden lyhennys §>
+§< duplikaattivaroitus §>
+§< pisteiden lasku ja kertoimien tarkistus §>
+§< kysy varmistus lopettamiselle §>
+§< kysy varmistus qso:n poistolle §>
+§< statusrivin tyhjennys §>
+§< makronappuloiden helpit §>
+§< qso:n tallennus tiedostoon §>
+§< qso:n poisto §>
+§< qso:n tietojen p\"aivitys §>
+§< ruudut uusiksi §>
+§< viimeiset qso:t listaan §>
+§< luetaan qso:t tiedostosta §>
+§|§}
 
 aaa
 
@@ -384,26 +383,26 @@ ccc
 
 Parametrien käyttöharjoitus, eli ensin parametrillinen määritelmä:
 
-@d kontesteille @'ehto@' @'lauseet@'
-@{if ($contest =~ /@1/) {@2}@}
+§d kontesteille §'ehto§' §'lauseet§'
+§{if ($contest =~ /§1/) {§2}§}
 
-@d tai kontesteille @'ehto@' @'lauseet@'
-@{elseif ($contest =~ /@1/) {@2}@}
+§d tai kontesteille §'ehto§' §'lauseet§'
+§{elseif ($contest =~ /§1/) {§2}§}
 
 
 Sitten osa sisällöstä (lauseet) omassa määritelmässä.
 
-@d if-contest koelauseet @{@%
+§d if-contest koelauseet §{§%
 printf("%23s",sprintf("%d \xD7 40 + %d = %d",
     $multipliers, $points, $multipliers * 40 + $points));
-@|@}
+§|§}
 
-Ja käyttö löytyy tuosta alta heti @< Alukkeet @> alusta,
+Ja käyttö löytyy tuosta alta heti §< Alukkeet §> alusta,
 eli käytön on oltava toisen määritelmän sisällä.
 
 \section{Käyttöliittymä}
 
-@D Ikkunoiden paikat @{@%
+§D Ikkunoiden paikat §{§%
 my ($pos) = {
   clock => [ 8, -12 ],
   call => [ 14, -12 ],
@@ -423,14 +422,14 @@ my ($pos) = {
   helps => [ 1, -6 ],
   lastout => [ 1, 1 ]
 };
-@| pos @}
+§| pos §}
 
-@d Terminaalin\"app\"aimet @{@%
+§d Terminaalin\"app\"aimet §{§%
 my ($termkeys) = {
   _kP => "\e[5~",
   _kN => "\e[6~",
   _kh => "\e[H",
-  '_@@7' => "\e[F",
+  '_@7' => "\e[F",
   _ku => "\e[A",
   _up => "\e[A",
   _kd => "\e[B",
@@ -442,9 +441,9 @@ my ($termkeys) = {
   _kI => "\e[2~",
   _nd => "\e[C"
 };
-@| termkeys @}
+§| termkeys §}
 
-@d Kenttien pituudet @{@% UI
+§d Kenttien pituudet §{§% UI
 my ($fieldlen) = {
   call => 15,
   msg => 9,
@@ -455,12 +454,12 @@ if ($contest =~ /(kalakukko|syys|6cup|nrau)/) {
   $fieldlen->{msg} = 6;
   $fieldlen->{outmsg} = 6;
 }
-@| fieldlen @}\indexcontest{kalakukko}\indexcontest{syys}\indexcontest{6cup}\indexcontest{nrau}
+§| fieldlen §}\indexcontest{kalakukko}\indexcontest{syys}\indexcontest{6cup}\indexcontest{nrau}
 
 
 \section{Tiedon varastointi}
 
-@d Lokikirjaus @{@%
+§d Lokikirjaus §{§%
 my ($item) = {
   call => '',
   msg => '',
@@ -474,12 +473,12 @@ my ($item) = {
   keyer => '',
   lastout => ''
 };
-@| item @}
+§| item §}
 
 
 \section{Testien erikoisuudet}
 
-@d Sanapituudet @{@%
+§d Sanapituudet §{§%
 my ($wordlen) = {
   'perus-p' => 5,
   'perus-k' => 5,
@@ -491,18 +490,18 @@ my ($wordlen) = {
   '6cup'    => 2,
   nrau    => 2
 };
-@| wordlen @}
+§| wordlen §}
 
-@d Duplikaatti @{@%
+§d Duplikaatti §{§%
 my ($dupe) = {};
-@| dupe @}
+§| dupe §}
 
-@d Kertoimet @{@%
+§d Kertoimet §{§%
 my ($multi) = {};
 if ($contest eq "6cup") {$multi->{'40-OH6'} = 0;$multi->{'80-OH6'} = 0;}
-@| multi @}
+§| multi §}
 
-@d Taajuus metreiksi @{@%
+§d Taajuus metreiksi §{§%
 my ($bandswap) = {
   '3,5' => 80,
   7 => 40,
@@ -515,7 +514,7 @@ my ($bandswap) = {
   40 => 7,
   80 => '3,5'
 };
-@| bandswap @}
+§| bandswap §}
 
 
 
@@ -525,7 +524,7 @@ my ($bandswap) = {
 
 
 
-@D konffifileen luku @{@%
+§D konffifileen luku §{§%
 #-----------------------------------------------------------------------------
 # konffifileen luku
 
@@ -547,9 +546,9 @@ sub read_config {
     cw_out($i);
   }
 }
-@| read_config @}
+§| read_config §}
 
-@d kerroin ja kuntalistan luku @{@%
+§d kerroin ja kuntalistan luku §{§%
 #-----------------------------------------------------------------------------
 # kerroin/kuntalistan luku 
 sub read_dom {
@@ -563,9 +562,9 @@ sub read_dom {
     close DOM;
   }
 }
-@| read_dom @}
+§| read_dom §}
 
-@D helppi-ikkuna @{@%
+§D helppi-ikkuna §{§%
 #-----------------------------------------------------------------------------
 # helppi-ikkuna
 
@@ -591,7 +590,7 @@ sub help_win() {
   print $_right_ x 6 . "Meta-näppäin on ";
   if ($conf->{metakey} eq "\e") {print "ESC"} else {print $conf->{metakey};}
   print "\r\n\r\n";
-  my @@helplist = split("\n",q{
+  my @helplist = split("\n",q{
      <b>Meta-B</b>   bandi               <b>PGUP</b>     RST++
      <b>Meta-M</b>   mode CW/SSB         <b>PGDN</b>     RST--
      <b>Meta-N</b>   nro/ohc toisto      <b>-</b>        viim. QSO:n poisto
@@ -602,7 +601,7 @@ sub help_win() {
      <b>Meta-nro</b> CW-makroviesti      <b>CTRL-U</b>   kentän tyhjennys
   });
 
-  foreach my $i (@@helplist) {
+  foreach my $i (@helplist) {
     if ($i) {
       $i =~ s/^\s+/$_right_ x 6/e;
       $i =~ s/<b>/color('bold white')/eg;
@@ -620,8 +619,8 @@ sub help_win() {
   }
 }
 
-@|@}
-@d grafiikkakehykset @{@%
+§|§}
+§d grafiikkakehykset §{§%
 #-----------------------------------------------------------------------------
 # piirretään grafiikkakehykset 
 
@@ -643,7 +642,7 @@ sub draw_frames {
   $main::term->Tputs('ae',1,$stdout);
 
   foreach my $i ("call","last_qsos","status","multi","helps") {
-    my ($col,$row) = (@@{$pos->{"$i"}});
+    my ($col,$row) = (@{$pos->{"$i"}});
     if ($row < 0) {
       $row = $height + $row;
     }
@@ -660,13 +659,13 @@ sub draw_frames {
   $main::term->Tputs('ae',1,$stdout);
 }
 
-@|@}
-@d kursorin siirto @{@%
+§|§}
+§d kursorin siirto §{§%
 #-----------------------------------------------------------------------------
 # siirrä kursori nimettyyn paikkaan
 
 sub go {
-  my ($col,$row) = (@@{$pos->{"@@_"}});
+  my ($col,$row) = (@{$pos->{"@_"}});
   my ($width, $height, $pixwidth, $pixheight) = Term::ReadKey::GetTerminalSize;
   if ($row < 0) {
     $row = $height + $row;
@@ -681,13 +680,13 @@ sub go_pos {
   print $_right_ x $position;
 }
 
-@|@}
-@d editoitava rivi itemiin @{@%
+§|§}
+§d editoitava rivi itemiin §{§%
 #-----------------------------------------------------------------------------
 # editoitava rivi $item:iin
 
 sub qso_to_item {
-  my @@foo = split("\t",$last_qsos[$editor_row]);
+  my @foo = split("\t",$last_qsos[$editor_row]);
   $editqso = $foo[0];
   $editqso_utc = $foo[1];
   $item->{call} = $foo[2];
@@ -702,15 +701,15 @@ sub qso_to_item {
   go_pos();
 }
 
-@|@}
-@d kellon p\"aivitt\"aj\"a @{@%
+§|§}
+§d kellon p\"aivitt\"aj\"a §{§%
 #-----------------------------------------------------------------------------
 # kellon päivittäjä
 # jos parametriksi annetaan 1, niin päivittää vaikkei olisi tasaminuutti.
 
 sub clock {
-  (my $force) = @@_;
-  my @@tim = gmtime();
+  (my $force) = @_;
+  my @tim = gmtime();
   # dupelista ja kertoimet tyhjäksi tasatunnilla sainiossa ja syysottelussa
   # sekä kalakukossa ja kuutoscupissa
   if ($tim[0] == 0) {
@@ -740,13 +739,13 @@ sub clock {
   }
 }
 
-@|@}
-@D ruudun p\"aivitys @{@%
+§|§}
+§D ruudun p\"aivitys §{§%
 #-----------------------------------------------------------------------------
 # päivitä nimetty paikka ruudulla
 
 sub upd_scr {
-  (my $what) = @@_;
+  (my $what) = @_;
   if ($what eq "lastout") {return;}
   $main::term->Tputs('sc',1,$stdout);
   go($what);
@@ -772,42 +771,42 @@ sub upd_scr {
     print $item->{$what} . " " x (16-length($item->{$what}));
     print color 'reset';
   } elsif ($what eq "last_qsos") {
-    foreach my $i (@@last_qsos) {
+    foreach my $i (@last_qsos) {
       if ($last_qsos[$editor_row] eq $i and $last_qsos[$editor_row] ne "") {
         print color('blue on_white');
       } 
       print $_right_;
-      my @@qso = split(" ", $i);
+      my @qso = split(" ", $i);
       if ($qso[0] =~ /^DUPE/) {print color('white on_red');}
       $qso[0] =~ s/^DUPE\d{4}/DUPE/;
       my $band = $qso[9];
       $qso[9] = $bandswap->{$band};
-      printf("%-7s%-6s%-17s%5s%5s %-15s%-5s%3s %-5s %s%s\r\n",@@qso);
+      printf("%-7s%-6s%-17s%5s%5s %-15s%-5s%3s %-5s %s%s\r\n",@qso);
       print color('reset');
     }
   } elsif ($what eq "cwlog") {
-    foreach my $i (@@cwmsgs) {
+    foreach my $i (@cwmsgs) {
       $i =~ s/\e/\\e/;
       printf("$_right_%-50s\r\n",$i);
     }
   } elsif ($what eq "status") {
     printf("%-60s", $item->{$what});
   } elsif ($what eq "multi") {
-    my @@mlist;
+    my @mlist;
     foreach my $key (sort keys %$multi) {
       if (substr($key,0,3) eq $item->{band}."/") {
-        push @@mlist, substr($key,3);
+        push @mlist, substr($key,3);
       }
     }
     if ($contest =~ /(sainio|6cup)/) {
-      printf("%-78s", join(",",@@mlist));
+      printf("%-78s", join(",",@mlist));
     }
     if ($contest =~ /(kalakukko|nrau|syys)/) {
-      (my $foo = join(",",@@mlist[0..25])) =~ s/,*$//;
+      (my $foo = join(",",@mlist[0..25])) =~ s/,*$//;
       printf("%-78s\r\n", $foo);
-      ($foo = join(",",@@mlist[26..51])) =~ s/,*$//;
+      ($foo = join(",",@mlist[26..51])) =~ s/,*$//;
       printf("$_right_%-78s\r\n", $foo);
-      ($foo = join(",",@@mlist[52..77])) =~ s/,*$//;
+      ($foo = join(",",@mlist[52..77])) =~ s/,*$//;
       printf("$_right_%-78s", $foo);
     }
     if ($contest eq "6cup") {
@@ -847,16 +846,16 @@ sub upd_scr {
   $main::term->Tputs('rc',1,$stdout);
 }
 
-@|@}
-@d cw ilmoille @{@%
+§|§}
+§d cw ilmoille §{§%
 #-----------------------------------------------------------------------------
 # cw:tä ilmoille ja ruutu ajan tasalle
 
 sub cw_out {
-  my $message = "@@_";
+  my $message = "@_";
 
   $message =~ s/%/$conf->{mycall}/g;
-  $message =~ s/@@/$item->{call}/g;
+  $message =~ s/@/$item->{call}/g;
 
   socket (SOCKET, PF_INET, SOCK_DGRAM, getprotobyname("udp"));
   my $ipaddr = inet_aton($conf->{cwdaemon_host});
@@ -865,19 +864,19 @@ sub cw_out {
   close SOCKET;
 
   if ($message !~ /(^\e|^)$/) {
-    push @@cwmsgs, $message;
-    shift @@cwmsgs;
+    push @cwmsgs, $message;
+    shift @cwmsgs;
     upd_scr("cwlog");
   }
 }
 
-@|@}
-@d cw numeroiden lyhennys @{@%
+§|§}
+§d cw numeroiden lyhennys §{§%
 #-----------------------------------------------------------------------------
 # CW:ssä numeroiden lyhennys konfiguraation mukaan
         
 sub cw_shorten {
-  my $message = "@@_";
+  my $message = "@_";
   if ($conf->{shortnums} =~ /0/) {$message =~ s/0/T/g;}
   if ($conf->{shortnums} =~ /1/) {$message =~ s/1/A/g;}
   if ($conf->{shortnums} =~ /9/) {$message =~ s/9/N/g;}
@@ -885,8 +884,8 @@ sub cw_shorten {
 }
 
 
-@|@}
-@d duplikaattivaroitus @{@%
+§|§}
+§d duplikaattivaroitus §{§%
 #-----------------------------------------------------------------------------
 # varoita duplikaatista
 
@@ -896,14 +895,14 @@ sub alert_dupe {
   $item->{status} .= color 'reset';
   upd_scr("status");
 }
-@|@}
+§|§}
 
-@D pisteiden lasku ja kertoimien tarkistus @{@%
+§D pisteiden lasku ja kertoimien tarkistus §{§%
 #-----------------------------------------------------------------------------
 # pisteiden lasku ja kertoimien tarkistus ja mahdollinen lisäys listaan
    
 sub points_and_multi {
-  my ($call,$band,$msg) = @@_;
+  my ($call,$band,$msg) = @_;
   my $key = "";
   my $district = substr($conf->{ohc},0,1);
   if ($contest =~ /perus-y/) {
@@ -960,9 +959,9 @@ sub points_and_multi {
   }
   upd_scr("multi");
 }     
-@|@}
+§|§}
 
-@d kysy varmistus lopettamiselle @{@%
+§d kysy varmistus lopettamiselle §{§%
 #-----------------------------------------------------------------------------
 # kysy varmistus lopettamiselle
 
@@ -991,9 +990,9 @@ sub ask_quit {
     return 1;
   }
 }
-@|@}
+§|§}
 
-@d kysy varmistus qso:n poistolle @{@%
+§d kysy varmistus qso:n poistolle §{§%
 #-----------------------------------------------------------------------------
 # kysy varmistus viimeisen qso:n poistolle
 
@@ -1015,7 +1014,7 @@ sub ask_del_last {
     return 0;
   } 
   if ($key eq "k" or $key eq "y") {
-    (my $id = pop @@last_qsos) =~ s/(^DUPE|\s.*)//g;
+    (my $id = pop @last_qsos) =~ s/(^DUPE|\s.*)//g;
     delete_qso($id);
     $item->{status} = "$id POISTETTU";
     upd_scr("status");
@@ -1024,18 +1023,18 @@ sub ask_del_last {
     return 1;
   }
 }
-@|@}
+§|§}
 
-@d statusrivin tyhjennys @{@%
+§d statusrivin tyhjennys §{§%
 #-----------------------------------------------------------------------------
 # statusrivin tyhjennys
 sub clear_status {
   $item->{status} = "";
   upd_scr("status");
 }
-@|@}
+§|§}
 
-@d makronappuloiden helpit @{@%
+§d makronappuloiden helpit §{§%
 #-----------------------------------------------------------------------------
 # makronappuloiden helpit
 
@@ -1057,17 +1056,17 @@ sub print_helps {
     }
   }
 }
-@|@}
+§|§}
 
-@D qso:n tallennus tiedostoon @{@%
+§D qso:n tallennus tiedostoon §{§%
 #-----------------------------------------------------------------------------
 # qso:n tallennus tiedostoon
 
 sub save_qso {
-  my ($logrow) = @@_;
+  my ($logrow) = @_;
   open FD, ">>$logfile";
   $logrow =~ s/\s/\t/g;
-  my @@qso = split("\t",$logrow);
+  my @qso = split("\t",$logrow);
   my $band = $bandswap->{$qso[9]};
   my $dupekey = "";
   if ($contest =~ /(kalakukko|sainio|syys|6cup)/) {
@@ -1081,17 +1080,17 @@ sub save_qso {
   $clock_stopped = 0;
   points_and_multi($qso[2],$band,"$qso[7] $qso[8]");
   upd_scr("score");
-  push @@last_qsos, $logrow;
-  shift @@last_qsos;
+  push @last_qsos, $logrow;
+  shift @last_qsos;
 }
-@|@}
+§|§}
 
-@d qso:n poisto @{@%
+§d qso:n poisto §{§%
 #-----------------------------------------------------------------------------
 # qso:n poisto id:llä
 
 sub delete_qso {
-  my ($id) = @@_;
+  my ($id) = @_;
   $id =~ s/^DUPE//;
   open FD1, "<$logfile";
   open FD2, ">>$logfile.tmp";
@@ -1106,14 +1105,14 @@ sub delete_qso {
   rename "$logfile.tmp", $logfile;
   $clock_stopped = 0;
 }
-@|@}
+§|§}
 
-@d qso:n tietojen p\"aivitys @{@%
+§d qso:n tietojen p\"aivitys §{§%
 #-----------------------------------------------------------------------------
 # qso:n tietojen päivitys id:llä
     
 sub update_qso {
-  my ($id,$logrow) = @@_;
+  my ($id,$logrow) = @_;
   $logrow =~ s/\s/\t/g;
   open FD1, "<$logfile";
   open FD2, ">>$logfile.tmp";
@@ -1128,9 +1127,9 @@ sub update_qso {
   close FD2;
   rename "$logfile.tmp", $logfile;
 }
-@|@}
+§|§}
 
-@d ruudut uusiksi @{@%
+§d ruudut uusiksi §{§%
 #-----------------------------------------------------------------------------
 # piirretään kaikki ruudun jutut uusiksi jne.
 
@@ -1145,30 +1144,30 @@ sub refresh_screen {
   print_helps();
   clock(1);
 }
-@|@}
+§|§}
 
-@d viimeiset qso:t listaan @{@%
+§d viimeiset qso:t listaan §{§%
 #-----------------------------------------------------------------------------
 # lasketaan viimeisten qsojen listaan mahtuva määrä
 
 sub lastqso_listlen {
   my ($width, $height, $pixwidth, $pixheight) = Term::ReadKey::GetTerminalSize;
   my ($col, $row, $tempmax, $maxrow);
-  ($col, $row) = (@@{$pos->{last_qsos}});
+  ($col, $row) = (@{$pos->{last_qsos}});
   $maxrow = $height;
   if ($row < 0) {$row = $height + $row;}
 
   foreach my $i (keys %$pos) {
-    ($col, $tempmax) = (@@{$pos->{"$i"}});
+    ($col, $tempmax) = (@{$pos->{"$i"}});
     if ($tempmax < 0) {$tempmax = $height + $tempmax;}
     if ($maxrow > $tempmax and $row < $tempmax) {$maxrow = $tempmax;}
   }
   $height = $maxrow - $row - 1;
   return $height;
 }
-@|@}
+§|§}
 
-@D luetaan qso:t tiedostosta @{@%
+§D luetaan qso:t tiedostosta §{§%
 #-----------------------------------------------------------------------------
 # luetaan tiedostosta viimeisimmät qso:t ja luodaan duplikaattilista
 
@@ -1179,12 +1178,12 @@ sub read_last_qsos {
   $multipliers = 0;
   ($multi) = {};
   ($dupe) = {};
-  @@last_qsos = ();
-  for (1..lastqso_listlen()) {push @@last_qsos, '';}
+  @last_qsos = ();
+  for (1..lastqso_listlen()) {push @last_qsos, '';}
   open FD, "<$logfile";
   while (my $row = <FD>) {
     chomp $row;
-    my @@qso = split(/[\s\t]/,$row);
+    my @qso = split(/[\s\t]/,$row);
     if ($hour ne substr($qso[1],0,2)) {
       $hour = substr($qso[1],0,2);
       ($dupe) = {};
@@ -1230,25 +1229,25 @@ sub read_last_qsos {
     $item->{lastout} = "$qso[4] $qso[5]";
     $item->{band} = $bandswap->{$qso[9]};
     $item->{mode} = substr("$qso[10] ",0,3);
-    push @@last_qsos, $row;
+    push @last_qsos, $row;
     ($qso_num = $row) =~ s/(^DUPE|^0+|\s.*)//g;
     while ($#last_qsos >= lastqso_listlen()) {
-      shift @@last_qsos;
+      shift @last_qsos;
     }
   }
   close FD;
 }
-@|@}
+§|§}
 
-@D main
-@{@%
+§D main
+§{§%
 #-----------------------------------------------------------------------------
 # ja nälkävuoden mittainen main()
 
 sub main {
   my $keybuf;
-  my @@termsize;
-  my @@oldsize;
+  my @termsize;
+  my @oldsize;
 
   $main::term = Term::Cap::Tgetent Term::Cap { TERM => undef, OSPEED => 9600 };
   read_config();
@@ -1299,15 +1298,15 @@ sub main {
   while (!$stopped) {
 
     clock();
-    @@termsize = Term::ReadKey::GetTerminalSize;
-    if ("@@termsize" ne "@@oldsize") {
+    @termsize = Term::ReadKey::GetTerminalSize;
+    if ("@termsize" ne "@oldsize") {
       if ($where ne "editor") {
         $editor_row = $#last_qsos+1;
       }
       refresh_screen();
       go($where);
       go_pos();
-      @@oldsize = @@termsize;
+      @oldsize = @termsize;
     }
 
     while ((my $key = Term::ReadKey::ReadKey(-1)) ne undef) {
@@ -1350,7 +1349,7 @@ sub main {
         $item->{status} = "QSO $editqso muutokset tallennettu";
         upd_scr("status");
         refresh_screen();
-        $keybuf = $termkeys->{'_@@7'};
+        $keybuf = $termkeys->{'_@7'};
     }
 
     # ENTER in call field
@@ -1389,7 +1388,7 @@ sub main {
     if (($keybuf eq "\r" or $keybuf eq "\r\n" or $keybuf eq "\n")
          and length($item->{call}) > 2 and $where eq "msg"
          and $item->{msg} ne "") {
-      my @@tim = gmtime();
+      my @tim = gmtime();
       my $utc = sprintf("%02d%02d",$tim[2],$tim[1]);
       my $band = $item->{band};
       $band = $bandswap->{$band};
@@ -1578,9 +1577,9 @@ sub main {
     }
 
     # DOWN-KEY or END-KEY
-    if (($keybuf eq $termkeys->{_do} or $keybuf eq $termkeys->{'_@@7'}) 
+    if (($keybuf eq $termkeys->{_do} or $keybuf eq $termkeys->{'_@7'}) 
          and $editmode == 1) {
-      if ($keybuf eq $termkeys->{'_@@7'}) {$editor_row = $#last_qsos;}
+      if ($keybuf eq $termkeys->{'_@7'}) {$editor_row = $#last_qsos;}
       $editor_row++;
       $item->{call} = $editor_row;
       if ($editor_row > $#last_qsos) {
@@ -1788,7 +1787,7 @@ sub main {
   Term::ReadKey::ReadMode(0);
   return 0;
 }
-@|@}
+§|§}
 
 \printindex{testit}{Testit (=kisat)}
 
