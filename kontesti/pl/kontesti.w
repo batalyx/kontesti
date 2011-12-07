@@ -5,7 +5,7 @@
 % nuweb -l kontesti.w
 % latex kontesti.tex
 
-\documentclass[11pt,finnish,a4paper,twoside]{article}
+\documentclass[draft,11pt,finnish,a4paper,twoside]{article}
 %\newif\ifshowcode
 %\showcodetrue
 \usepackage[T1]{fontenc}
@@ -24,7 +24,7 @@ basicstyle=\footnotesize,
 %keywordstyle=\sffamily,
 stringstyle=\sffamily,
 showstringspaces=false,
-columns=space-flexible, % !!! Tärkeä, muuten tulee harvaa
+columns=flexible, % !!! Tärkeä, muuten tulee harvaa
 frame=single,
 literate={\#-----------------------------------------------------------------------------}{{\itshape\#\hspace{\fill}\rule{0.7\linewidth}{.7pt}\hspace{\fill}}}2,
 language=Perl
@@ -52,7 +52,7 @@ urlcolor={linkcolor}%
 ]{hyperref}
 
 
-\usepackage[left=2cm,right=1cm,top=2.5cm,bottom=2.5cm,headsep=0.5cm,headheight=0.5cm]{geometry}
+\usepackage[left=3cm,right=2cm,top=2.5cm,bottom=2.5cm,headsep=0.5cm,headheight=0.5cm]{geometry}
 
 \newcommand{\perl}[1]{\lstinline[language=Perl]{#1}}
 \newcommand{\code}[1]{\perl{#1}}
@@ -166,6 +166,7 @@ jos komento muutetaan muotoon \bash{#!/usr/bin/env perl}.
 ##########################################################################
 @|@}
 
+Pahoittelen, ettei \LaTeX in Listings"-paketti minun käsissäni taivu esittämään ylläolevaa siedettävästi.
 Alussa on myös mukana CVS- tai RCS"-versiohallinnan metatietoja, jotka
 Kontestin revision ja tämän viimeisimmän muokkauspäivän.
 
@@ -221,6 +222,31 @@ my ($opts) = getopt();
 my $contest = lc($opts->{c});
 @|@}
 
+Komentorivioptioiden luku tapahtuu seuraavasti:
+
+@D getopt @{@%
+#-----------------------------------------------------------------------------
+# komentoriviparametrit hashiin
+
+sub getopt {
+  my $i = 0;
+  my ($ret) = {};
+  while ($i < $#ARGV+1) {
+    if ($ARGV[$i] =~ /^-/) {
+      if ($ARGV[$i+1] =~ /^-/ || $i == $#ARGV) {
+        $ret->{substr($ARGV[$i],1)} = 1;
+      } else {
+        $ret->{substr($ARGV[$i++],1)} = $ARGV[$i+1];
+      }
+    }
+    $i++;
+  }
+  return $ret;
+}
+@| getopt @}
+
+TODO: SELITÄ! ******************
+
 Seuraavaksi tarkastetaan, jos kisa on \contest{joulu}, se ajetaan kuin
 se olisi \contest{sainio}.
 
@@ -244,16 +270,29 @@ if (!$logfile or $contest !~ /(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cu
 
 \subsection{Tietueet ja tietorakenteet}
 
-Seuraavaksi on määritelty tietueet ja tietorakenteet\footnote{Kyllä, nämäkin ovat globaaleja muuttujia, mutta esittelen ne erillään, koska ne ovat koosteisia tietotyyppejä, joita käytetään kasaamaan yhteenkuuluvia tietoja.}.  
+Seuraavaksi on määritelty tietueet ja tietorakenteet\footnote{Kyllä, nämäkin ovat globaaleja muuttujia, mutta esittelen ne erillään, koska ne ovat koosteisia tietotyyppejä, joita käytetään kasaamaan yhteenkuuluvia tietoja.}. Tietueita käytetään sekä tiedon tallentamiseen (esim. Lokikirjaus), että tiedon muuntamiseen (esim. Taajuus metreiksi).
+
+Ensimmäisenä tietueissa on lueteltu sanasto, jossa ikkunoiden paikat on indeksoitu ikkunan nimen funktiona. Tämä, kuten muutkin tietueet, on esitelty tarkemmin omassa osuudessaan myöhemmin.
 
 @D Tietueet
-@{@%
+@{
 @< Ikkunoiden paikat @> @% UI
+@}
+
+Seuraavana tulee joukko tiedontallennuksen ja pistelaskun tietueita. Sananpituudet listaava ja taajuuden metreiksi muuttavat sanastot ovat hieno esimerkki siitä, miten moinen tulee tehdä. Sen sijaan, että rakennettaisiin käsittämätön \code{if-} tai \code{case}"-hässäkkä, tehdään selkeä sanasto, jossa avaimella löytyy oikea arvo. Taajuuden muuttamisen metreiksi voisi toki tehdä funktiona, mutta senkin erikoisuuksien vuoksi jouduttaisiin turvautumaan sekaviin ehtolauseisiin.
+
+@D Tietueet
+@{
 @< Lokikirjaus @>
 @< Sanapituudet @>
 @< Duplikaatti @>
 @< Taajuus metreiksi @>
+@}
 
+Klunssista löytyvät sitten terminaalin komentonäppäimet, testien kertoimet sekä syöttökenttien pituudet, eli hieman hassusti taas käyttöliittymä- ja logiikkakoodia sekaisin.
+
+@D Tietueet
+@{
 #klunssia
 
 @< Terminaalin\"app\"aimet @>
@@ -261,124 +300,39 @@ Seuraavaksi on määritelty tietueet ja tietorakenteet\footnote{Kyllä, nämäkin ova
 @< Kenttien pituudet @> @% UI
 @}
 
-@D Ikkunoiden paikat @{@%
-my ($pos) = {
-  clock => [ 8, -12 ],
-  call => [ 14, -12 ],
-  msg => [ 62, -12 ],
-  outmsg => [ 38, -12 ],
-  band => [ 1, -12 ],
-  mode => [ 3, -12 ],
-  rst_s => [ 32, -12 ],
-  rst_g => [ 56, -12 ],
-  cwlog => [ 0, 1 ],
-  last_qsos => [ 0, 6 ],
-  status => [ 1, -2 ],
-  multi => [ 1, -10 ],
-  workingmode => [ 65, -2 ],
-  score => [ 55, 1 ],
-  keyer => [ 9, -2 ],
-  helps => [ 1, -6 ],
-  lastout => [ 1, 1 ]
-};
-@| pos @}
-
-@d Lokikirjaus @{@%
-my ($item) = {
-  call => '',
-  msg => '',
-  outmsg => '    ',
-  band => '80',
-  mode => 'CW ',
-  rst_s => '59',
-  rst_g => '59',
-  status => '',
-  workingmode => 'CQ',
-  keyer => '',
-  lastout => ''
-};
-@| item @}
-
-@d Sanapituudet @{@%
-my ($wordlen) = {
-  'perus-p' => 5,
-  'perus-k' => 5,
-  'perus-s' => 5,
-  'perus-y' => 5,
-  sainio  => 5,
-  syys    => 2,
-  kalakukko => 2,
-  '6cup'    => 2,
-  nrau    => 2
-};
-@| wordlen @}
-
-@d Duplikaatti @{@%
-my ($dupe) = {};
-@| dupe @}
-
-@d Taajuus metreiksi @{@%
-my ($bandswap) = {
-  '3,5' => 80,
-  7 => 40,
-  14 => 20,
-  21 => 15,
-  28 => 10,
-  10 => 28,
-  15 => 21,
-  20 => 14,
-  40 => 7,
-  80 => '3,5'
-};
-@| bandswap @}
 
 
-@d Terminaalin\"app\"aimet @{@%
-my ($termkeys) = {
-  _kP => "\e[5~",
-  _kN => "\e[6~",
-  _kh => "\e[H",
-  '_@@7' => "\e[F",
-  _ku => "\e[A",
-  _up => "\e[A",
-  _kd => "\e[B",
-  _do => "\e[B",
-  _kl => "\e[D",
-  _le => "\e[D",
-  _kr => "\e[C",
-  _kD => "\e[3~",
-  _kI => "\e[2~",
-  _nd => "\e[C"
-};
-@| termkeys @}
 
-@d Kertoimet @{@%
-my ($multi) = {};
-if ($contest eq "6cup") {$multi->{'40-OH6'} = 0;$multi->{'80-OH6'} = 0;}
-@| multi @}
 
-@d Kenttien pituudet
-@{@% UI
-my ($fieldlen) = {
-  call => 15,
-  msg => 9,
-  outmsg => 9,
-  keyer => 50
-};
-if ($contest =~ /(kalakukko|syys|6cup|nrau)/) {
-  $fieldlen->{msg} = 6;
-  $fieldlen->{outmsg} = 6;
-}
-@| fieldlen @}\indexcontest{kalakukko}\indexcontest{syys}\indexcontest{6cup}\indexcontest{nrau}
 
-@D Globaalit muuttujat
-@{my ($conf) = {};
+%%%% Globaalien muuttujien alkuperäinen järjestys
+%% my ($conf) = {};
+%% my ($countyname) = {};
+%% my $stopped = 0;
+%% my $stdout = *STDOUT;
+%% my $where = "call";
+%% my @@last_qsos = ();
+%% my @@cwmsgs = ('','','','');
+%% my $qso_num = 0;
+%% my $clock_stopped = 0;
+%% my $_right_ = ' ';
+%% my $position;
+%% my $multipliers = 0;
+%% my $points = 0;
+%% my $editor_row = "";
+%% my $backup_item;
+%% my $editmode = 0;
+%% my $editqso = 0;
+%% my $editqso_utc;
+
+Koska globaalit muuttujat eivät viittaa toisiinsa tai ole muuten esittelyjärjestyksestä riippuvia, ryhmittelin niitä hieman.
+
+@D Globaalit muuttujat @{
+my ($conf) = {};
 my ($countyname) = {};
-my $stopped = 0;
 my $stdout = *STDOUT;
 my $where = "call";
 my @@last_qsos = ();
-my @@cwmsgs = ('','','','');
 my $qso_num = 0;
 my $clock_stopped = 0;
 my $_right_ = ' ';
@@ -386,10 +340,12 @@ my $position;
 my $multipliers = 0;
 my $points = 0;
 my $editor_row = "";
-my $backup_item;
 my $editmode = 0;
 my $editqso = 0;
 my $editqso_utc;
+my $stopped = 0;
+my $backup_item;
+my @@cwmsgs = ('','','','');
 @| conf countyname stopped stdout where last_qsos cwmsgs qso_num clock_stopped _right_ position multipliers points editor_row backup_item editmode editqso editqso_utc @}
 
 
@@ -445,30 +401,129 @@ printf("%23s",sprintf("%d \xD7 40 + %d = %d",
 Ja käyttö löytyy tuosta alta heti @< Alukkeet @> alusta,
 eli käytön on oltava toisen määritelmän sisällä.
 
+\section{Käyttöliittymä}
 
-\section{Sorsa}
+@D Ikkunoiden paikat @{@%
+my ($pos) = {
+  clock => [ 8, -12 ],
+  call => [ 14, -12 ],
+  msg => [ 62, -12 ],
+  outmsg => [ 38, -12 ],
+  band => [ 1, -12 ],
+  mode => [ 3, -12 ],
+  rst_s => [ 32, -12 ],
+  rst_g => [ 56, -12 ],
+  cwlog => [ 0, 1 ],
+  last_qsos => [ 0, 6 ],
+  status => [ 1, -2 ],
+  multi => [ 1, -10 ],
+  workingmode => [ 65, -2 ],
+  score => [ 55, 1 ],
+  keyer => [ 9, -2 ],
+  helps => [ 1, -6 ],
+  lastout => [ 1, 1 ]
+};
+@| pos @}
 
+@d Terminaalin\"app\"aimet @{@%
+my ($termkeys) = {
+  _kP => "\e[5~",
+  _kN => "\e[6~",
+  _kh => "\e[H",
+  '_@@7' => "\e[F",
+  _ku => "\e[A",
+  _up => "\e[A",
+  _kd => "\e[B",
+  _do => "\e[B",
+  _kl => "\e[D",
+  _le => "\e[D",
+  _kr => "\e[C",
+  _kD => "\e[3~",
+  _kI => "\e[2~",
+  _nd => "\e[C"
+};
+@| termkeys @}
 
-@d getopt @{@%
-#-----------------------------------------------------------------------------
-# komentoriviparametrit hashiin
-
-sub getopt {
-  my $i = 0;
-  my ($ret) = {};
-  while ($i < $#ARGV+1) {
-    if ($ARGV[$i] =~ /^-/) {
-      if ($ARGV[$i+1] =~ /^-/ || $i == $#ARGV) {
-        $ret->{substr($ARGV[$i],1)} = 1;
-      } else {
-        $ret->{substr($ARGV[$i++],1)} = $ARGV[$i+1];
-      }
-    }
-    $i++;
-  }
-  return $ret;
+@d Kenttien pituudet @{@% UI
+my ($fieldlen) = {
+  call => 15,
+  msg => 9,
+  outmsg => 9,
+  keyer => 50
+};
+if ($contest =~ /(kalakukko|syys|6cup|nrau)/) {
+  $fieldlen->{msg} = 6;
+  $fieldlen->{outmsg} = 6;
 }
-@| getopt @}
+@| fieldlen @}\indexcontest{kalakukko}\indexcontest{syys}\indexcontest{6cup}\indexcontest{nrau}
+
+
+\section{Tiedon varastointi}
+
+@d Lokikirjaus @{@%
+my ($item) = {
+  call => '',
+  msg => '',
+  outmsg => '    ',
+  band => '80',
+  mode => 'CW ',
+  rst_s => '59',
+  rst_g => '59',
+  status => '',
+  workingmode => 'CQ',
+  keyer => '',
+  lastout => ''
+};
+@| item @}
+
+
+\section{Testien erikoisuudet}
+
+@d Sanapituudet @{@%
+my ($wordlen) = {
+  'perus-p' => 5,
+  'perus-k' => 5,
+  'perus-s' => 5,
+  'perus-y' => 5,
+  sainio  => 5,
+  syys    => 2,
+  kalakukko => 2,
+  '6cup'    => 2,
+  nrau    => 2
+};
+@| wordlen @}
+
+@d Duplikaatti @{@%
+my ($dupe) = {};
+@| dupe @}
+
+@d Kertoimet @{@%
+my ($multi) = {};
+if ($contest eq "6cup") {$multi->{'40-OH6'} = 0;$multi->{'80-OH6'} = 0;}
+@| multi @}
+
+@d Taajuus metreiksi @{@%
+my ($bandswap) = {
+  '3,5' => 80,
+  7 => 40,
+  14 => 20,
+  21 => 15,
+  28 => 10,
+  10 => 28,
+  15 => 21,
+  20 => 14,
+  40 => 7,
+  80 => '3,5'
+};
+@| bandswap @}
+
+
+
+
+
+\section{Sorsan jämät}
+
+
 
 @D konffifileen luku @{@%
 #-----------------------------------------------------------------------------
