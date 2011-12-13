@@ -26,7 +26,7 @@ stringstyle=\sffamily,
 showstringspaces=false,
 columns=flexible, % !!! Tärkeä, muuten tulee harvaa
 frame=single,
-literate={\#-----------------------------------------------------------------------------}{{\itshape\#\hspace{\fill}\rule{0.7\linewidth}{.7pt}\hspace{\fill}}}2,
+literate={\#-----------------------------------------------------------------------------}{{\itshape\#\hspace{\fill}\rule{0.7\linewidth}{.7pt}\hspace{\fill}}}{72} {##########################################################################}{\itshape\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#}{21},
 language=Perl
 }
 \usepackage{color}
@@ -302,7 +302,7 @@ Klunssista löytyvät sitten terminaalin komentonäppäimet, testien kertoimet sekä 
 
 
 
-
+\subsection{Globaalit muuttujat}
 
 %%%% Globaalien muuttujien alkuperäinen järjestys
 %% my ($conf) = {};
@@ -328,22 +328,22 @@ Koska globaalit muuttujat eivät viittaa toisiinsa tai ole muuten esittelyjärjest
 
 §D Globaalit muuttujat §{
 my ($conf) = {};
-my ($countyname) = {};
 my $stdout = *STDOUT;
 my $where = "call";
-my @last_qsos = ();
-my $qso_num = 0;
-my $clock_stopped = 0;
 my $_right_ = ' ';
 my $position;
-my $multipliers = 0;
-my $points = 0;
+my $stopped = 0;
+my $backup_item;
+my $qso_num = 0;
+my $clock_stopped = 0;
 my $editor_row = "";
 my $editmode = 0;
 my $editqso = 0;
 my $editqso_utc;
-my $stopped = 0;
-my $backup_item;
+my ($countyname) = {};
+my @last_qsos = ();
+my $multipliers = 0;
+my $points = 0;
 my @cwmsgs = ('','','','');
 §| conf countyname stopped stdout where @last_qsos @cwmsgs qso_num clock_stopped _right_ position multipliers points editor_row backup_item editmode editqso editqso_utc §}
 
@@ -618,8 +618,8 @@ sub help_win() {
     select(undef,undef,undef,0.01);
   }
 }
+§| help_win §}
 
-§|§}
 §d grafiikkakehykset §{§%
 #-----------------------------------------------------------------------------
 # piirretään grafiikkakehykset 
@@ -658,8 +658,8 @@ sub draw_frames {
   print "m" . "q" x 78 . "j";
   $main::term->Tputs('ae',1,$stdout);
 }
+§| draw_frames §}
 
-§|§}
 §d kursorin siirto §{§%
 #-----------------------------------------------------------------------------
 # siirrä kursori nimettyyn paikkaan
@@ -679,8 +679,8 @@ sub go {
 sub go_pos {
   print $_right_ x $position;
 }
+§| go go_pos §}
 
-§|§}
 §d editoitava rivi itemiin §{§%
 #-----------------------------------------------------------------------------
 # editoitava rivi $item:iin
@@ -700,8 +700,8 @@ sub qso_to_item {
   go("call");
   go_pos();
 }
+§| qso_to_item §}
 
-§|§}
 §d kellon p\"aivitt\"aj\"a §{§%
 #-----------------------------------------------------------------------------
 # kellon päivittäjä
@@ -738,8 +738,8 @@ sub clock {
     $main::term->Tputs('rc',1,$stdout);
   }
 }
+§| clock §}
 
-§|§}
 §D ruudun p\"aivitys §{§%
 #-----------------------------------------------------------------------------
 # päivitä nimetty paikka ruudulla
@@ -845,8 +845,8 @@ sub upd_scr {
   print color ('reset');
   $main::term->Tputs('rc',1,$stdout);
 }
+§| upd_scr §}
 
-§|§}
 §d cw ilmoille §{§%
 #-----------------------------------------------------------------------------
 # cw:tä ilmoille ja ruutu ajan tasalle
@@ -869,8 +869,8 @@ sub cw_out {
     upd_scr("cwlog");
   }
 }
+§| cw_out §}
 
-§|§}
 §d cw numeroiden lyhennys §{§%
 #-----------------------------------------------------------------------------
 # CW:ssä numeroiden lyhennys konfiguraation mukaan
@@ -882,9 +882,8 @@ sub cw_shorten {
   if ($conf->{shortnums} =~ /9/) {$message =~ s/9/N/g;}
   return $message;
 }
+§| cw_shorten §}
 
-
-§|§}
 §d duplikaattivaroitus §{§%
 #-----------------------------------------------------------------------------
 # varoita duplikaatista
@@ -895,7 +894,7 @@ sub alert_dupe {
   $item->{status} .= color 'reset';
   upd_scr("status");
 }
-§|§}
+§| alert_dupe §}
 
 §D pisteiden lasku ja kertoimien tarkistus §{§%
 #-----------------------------------------------------------------------------
@@ -959,7 +958,7 @@ sub points_and_multi {
   }
   upd_scr("multi");
 }     
-§|§}
+§| points_and_multi §}
 
 §d kysy varmistus lopettamiselle §{§%
 #-----------------------------------------------------------------------------
@@ -990,7 +989,7 @@ sub ask_quit {
     return 1;
   }
 }
-§|§}
+§| ask_quit §}
 
 §d kysy varmistus qso:n poistolle §{§%
 #-----------------------------------------------------------------------------
@@ -1023,7 +1022,7 @@ sub ask_del_last {
     return 1;
   }
 }
-§|§}
+§| ask_del_last §}
 
 §d statusrivin tyhjennys §{§%
 #-----------------------------------------------------------------------------
@@ -1032,7 +1031,7 @@ sub clear_status {
   $item->{status} = "";
   upd_scr("status");
 }
-§|§}
+§| clear_status §}
 
 §d makronappuloiden helpit §{§%
 #-----------------------------------------------------------------------------
@@ -1056,7 +1055,7 @@ sub print_helps {
     }
   }
 }
-§|§}
+§| print_helps §}
 
 §D qso:n tallennus tiedostoon §{§%
 #-----------------------------------------------------------------------------
@@ -1083,7 +1082,7 @@ sub save_qso {
   push @last_qsos, $logrow;
   shift @last_qsos;
 }
-§|§}
+§| save_qso §}
 
 §d qso:n poisto §{§%
 #-----------------------------------------------------------------------------
@@ -1105,7 +1104,7 @@ sub delete_qso {
   rename "$logfile.tmp", $logfile;
   $clock_stopped = 0;
 }
-§|§}
+§| delete_qso §}
 
 §d qso:n tietojen p\"aivitys §{§%
 #-----------------------------------------------------------------------------
@@ -1127,7 +1126,7 @@ sub update_qso {
   close FD2;
   rename "$logfile.tmp", $logfile;
 }
-§|§}
+§| update_qso §}
 
 §d ruudut uusiksi §{§%
 #-----------------------------------------------------------------------------
@@ -1144,7 +1143,7 @@ sub refresh_screen {
   print_helps();
   clock(1);
 }
-§|§}
+§| refresh_screen §}
 
 §d viimeiset qso:t listaan §{§%
 #-----------------------------------------------------------------------------
@@ -1165,7 +1164,7 @@ sub lastqso_listlen {
   $height = $maxrow - $row - 1;
   return $height;
 }
-§|§}
+§| lastqso_listlen §}
 
 §D luetaan qso:t tiedostosta §{§%
 #-----------------------------------------------------------------------------
@@ -1237,7 +1236,7 @@ sub read_last_qsos {
   }
   close FD;
 }
-§|§}
+§| read_last_qsos §}
 
 §D main
 §{§%
@@ -1787,7 +1786,7 @@ sub main {
   Term::ReadKey::ReadMode(0);
   return 0;
 }
-§|§}
+§| main §}
 
 \printindex{testit}{Testit (=kisat)}
 
