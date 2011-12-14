@@ -3,6 +3,13 @@
 ;; # $Id: kontesti.pl,v 0.40 2007/11/04 12:40:27 goblet Exp $
 ;; # $Revision: 0.40 $
 
+
+(defpackage #:kontesti
+  (:use #:common-lisp #:cl-ppcre)
+  (:export #:main))
+
+(use-package :kontesti)
+
 ;; ##########################################################################
 ;; # kontesti.pl                                                            #
 ;; #                                                                        #
@@ -25,9 +32,21 @@
 ;; $Term::ANSIColor::AUTORESET = 1;
 
 ;; my $logfile = $ARGV[$#ARGV];
+(defvar *args*
+  (or #+SBCL sb-ext:*posix-argv*
+      #+LISPWORKS system:*line-arguments-list*
+      #+CMU extensions:*command-line-words*
+      nil))
+(defvar *logfile* (last args))
+
 ;; my ($opts) = getopt();
+(defvar *opts* (getopt))
+
 ;; my $contest = lc($opts->{c});
 ;; if ($contest eq "joulu") {$contest = "sainio";}
+(defvar *contest* (string-downcase (gethash 'c *opts*)))
+(when (string= *contest* "joulu")
+  (setf *contest* "sainio"))
 
 ;; if (!$logfile or $contest !~ /(perus-[pksy]|sainio|syys|nrau|kalakukko|joulu|6cup)/) {
 ;;   print "Käyttö: $0 -c kilpailunimi lokitiedosto\n";
@@ -150,12 +169,17 @@
 ;; my $editmode = 0;
 ;; my $editqso = 0;
 ;; my $editqso_utc;
+
 ;; #-----------------------------------------------------------------------------
 ;; # komentoriviparametrit hashiin
 
 ;; sub getopt {
+(defun getopt ()
+  "komentoriviparametrit hashiin"
 ;;   my $i = 0;
 ;;   my ($ret) = {};
+  (let ((i 0)
+	(ret (make-hash-table)))
 ;;   while ($i < $#ARGV+1) {
 ;;     if ($ARGV[$i] =~ /^-/) {
 ;;       if ($ARGV[$i+1] =~ /^-/ || $i == $#ARGV) {
@@ -168,6 +192,8 @@
 ;;   }
 ;;   return $ret;
 ;; }
+    ret))
+
 
 ;; #-----------------------------------------------------------------------------
 ;; # konffifileen luku
